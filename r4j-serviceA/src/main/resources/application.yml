@@ -1,0 +1,40 @@
+spring.application.name: "serviceA"
+
+resilience4j.timelimiter:
+  instances:
+    "[serviceB#getReply]":
+      timeoutDuration: 1s
+resilience4j:
+  thread-pool-bulkhead:
+    instances:
+      "[serviceB#getReply]":
+        maxThreadPoolSize: 3
+        coreThreadPoolSize: 1
+        queueCapacity: 1
+  circuitbreaker:
+    instances:
+      "[serviceB#circuitbreaker]":
+        slidingWindowSize: 2
+        failureRateThreshold: 50
+  bulkhead:
+    instances:
+      "[serviceB#semaphore]":
+        maxConcurrentCalls: 2
+  ratelimiter:
+    instances:
+      "[serviceB#ratelimiter]":
+        limitForPeriod: 3
+        limitRefreshPeriod: 1s
+        timeoutDuration: 500ms
+  retry:
+    instances:
+      "[serviceB#retry]":
+        waitDuration: 500ms
+        maxAttempt: 3
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, health, metrics, prometheus
